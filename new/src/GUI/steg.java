@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 public class steg extends Application implements EventHandler<ActionEvent>{
 
-    static Scene scene_encode,scene_decode,main_scene;
+    static Scene main_scene;
     public  static void main(String args[]){
         launch(args);
     }
