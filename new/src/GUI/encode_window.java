@@ -1,4 +1,5 @@
 package GUI;
+import Code.encoding;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -11,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -19,6 +21,8 @@ import java.io.File;
 public class encode_window {
 
     private static String carrierFileExt = null;
+    public static String carrierFile = null;
+    public static String outputFile=null;
     public static String password;
     public static String message = null;
 
@@ -33,6 +37,10 @@ public class encode_window {
         Button viewCarrierImage = new Button("View");
 
 
+        Label errorLabel = new Label();
+        errorLabel.setTextFill(Color.RED);
+
+
         //Output Image
         Label outputLabel = new Label("Output: ");
         TextField outputText = new TextField();
@@ -44,6 +52,10 @@ public class encode_window {
         backButton.setOnAction(e -> {
             steg.display(stage);
         });
+
+        Label passlabel = new Label("Password: ");
+        TextField passtext = new TextField();
+        passtext.setPrefWidth(300);
 
         //Message
         Label dataLabel = new Label("Text: ");
@@ -61,11 +73,43 @@ public class encode_window {
 
         grid.getChildren().addAll(carrierText, carrierLabel, carrierChoose,
                 viewCarrierImage, outputLabel, outputText, outputChoose,
-                 dataLabel, dataTextArea);
+                 dataLabel, dataTextArea,passlabel,passtext,errorLabel);
+
+
+        carrierChoose.setOnAction(e -> {
+            if((carrierFile = chooseCarrierFile(stage)) != null) {
+                carrierText.setText(carrierFile);
+            }
+            else if(carrierText.getText() != null) carrierFile = carrierText.getText();
+        });
+
+        viewCarrierImage.setOnAction(e -> ImageDisplay.display(carrierText.getText()));
+
+        outputChoose.setOnAction(e -> {
+            if ((outputFile = chooseOutputFile(stage)) != null) {
+                outputText.setText(outputFile);
+            }
+            else if(carrierText.getText() != null) carrierFile = carrierText.getText();
+        });
+
+
+        Button nextButton = new Button("encode");
+        nextButton.setOnAction(e -> {
+            if(dataTextArea.getText() != null && passtext.getText()!=null)
+                message = (dataTextArea.getText().trim().length()>0)? dataTextArea.getText() : null;
+                password = (passtext.getText().trim().length()>0)? passtext.getText() : null;
+            if(!isError()) {
+                encoding temp=new encoding();
+                temp.encode(message,password,carrierFile,outputFile);
+            }
+            else errorLabel.setText("All fields required!");
+        });
+
+
         HBox hBox = new HBox(15);
         hBox.setPadding(new Insets(10,20,20,10)); // top, right, bottom, left
         hBox.setAlignment(Pos.BASELINE_RIGHT);
-        hBox.getChildren().addAll(backButton);
+        hBox.getChildren().addAll(backButton,nextButton);
 
         BorderPane bPane = new BorderPane();
         bPane.setCenter(grid);
@@ -82,6 +126,9 @@ public class encode_window {
         GridPane.setConstraints(dataLabel, 0, 4);
         GridPane.setConstraints(dataTextArea, 1, 4);
         GridPane.setConstraints(carrierLabel, 0, 0);
+        GridPane.setConstraints(passlabel, 0, 2);
+        GridPane.setConstraints(passtext, 1, 2);
+        GridPane.setConstraints(errorLabel, 1, 5);
 
 
         stage.setScene(scene);
@@ -119,6 +166,11 @@ public class encode_window {
         else { return null; }
     }
 
-
+    private static boolean isError() {
+        boolean isError = false;
+        if(carrierFile == null || outputFile == null || message == null || password==null)
+            isError = true;
+        return isError;
+    }
 
 }

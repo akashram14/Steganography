@@ -43,8 +43,6 @@ public class steg extends Application implements EventHandler<ActionEvent>{
         stage.setTitle("Hello");
         stage.show();
 
-
-
     }
 
     @Override
