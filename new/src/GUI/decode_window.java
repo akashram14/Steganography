@@ -23,6 +23,7 @@ public class decode_window {
 
     private static String carrierFile = null;
     private static TextArea dataTextArea;
+    public static String password;
     private static Label errorLabel = new Label();
 
     public static void display(Stage stage) {
@@ -54,6 +55,10 @@ public class decode_window {
                 ImageDisplay.display(url);
         });
 
+        Label passlabel = new Label("Password: ");
+        TextField passtext = new TextField();
+        passtext.setPrefWidth(300);
+
         // TextArea:
         Label dataLabel = new Label("Text: ");
         dataTextArea = new TextArea();
@@ -71,10 +76,12 @@ public class decode_window {
         GridPane.setConstraints(dataLabel, 0, 4);
         GridPane.setConstraints(dataTextArea, 1, 4);
         GridPane.setConstraints(errorLabel, 1, 5);
+        GridPane.setConstraints(passlabel, 0, 2);
+        GridPane.setConstraints(passtext, 1, 2);
 
         // Add all controls to grid
         grid.getChildren().addAll(carrierText, carrierLabel, carrierChoose, viewCarrierImage,
-                dataLabel, dataTextArea, errorLabel);
+                dataLabel, dataTextArea, errorLabel,passlabel,passtext);
 
         Button backButton = new Button("<< Back");
         backButton.setOnAction(e -> {
@@ -82,14 +89,18 @@ public class decode_window {
         });
         Button decodeButton = new Button("Decode");
         decodeButton.setOnAction(e -> {
-            if(!carrierText.getText().equals("")) {
+            if(!carrierText.getText().equals("") && passtext.getText()!=null) {
+                password = (passtext.getText().trim().length()>0)? passtext.getText() : null;
                 decodeButton.setDisable(true); // ERROR: not disabling
                 decoding temp = new decoding();
-                String str=temp.decode(carrierFile);
-                dataTextArea.setText(str);
-                decodeButton.setDisable(false);
+                try {
+                    String str = temp.decode(carrierFile, password);
+                    dataTextArea.setText(str);
+                    decodeButton.setDisable(false);
+                }
+                catch (Exception ex){  errorLabel.setText("Wrong password");  }
             }
-            else { errorLabel.setText("Carrier File Required!"); }
+            else { errorLabel.setText("Carrier File Required! and password too!"); }
         });
 
         HBox base = new HBox(15);

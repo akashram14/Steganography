@@ -9,22 +9,45 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class decoding {
     private static BufferedImage image;
+    static int x = 0;
+    static int y = 0;
+    static int bitMask = 0x00000001;
 
-    public static String decode(String carrier) {
+    public static String decode(String carrier,String password) throws Exception {
         try {
             image = ImageIO.read(new File(carrier));
         } catch (IOException e) {
             AlertBox.error("Error in reading Carrier image file.", null);
         }
-        int len = 0;
-        int x = 0;
-        int y = 0;
+        String hashtext1;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(password.getBytes());
+            BigInteger no = new BigInteger(1, messageDigest);
+            hashtext1 = no.toString(16);
+            while (hashtext1.length() < 32) {
+                hashtext1 = "0" + hashtext1;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        String actual_password = actual_decode();
+        if(actual_password.equals(hashtext1)) {
+            String encoded_string = actual_decode();
+            return encrypt.decrypt(encoded_string,hashtext1);
+        }
+        else throw new Exception();
+    }
+    public static String actual_decode(){
+        int len =0;
         int flag;
-        int bitMask = 0x00000001;
         for (int i = 0; i < 32; i++) {
             if (x < image.getWidth()) {
                 len |= image.getRGB(x, y) & bitMask;
@@ -66,7 +89,6 @@ public class decoding {
             c[i] = (char) bit;
             s += c[i];
         }
-        System.out.println(s);
         return s;
     }
 

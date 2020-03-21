@@ -20,7 +20,6 @@ public class steg extends Application implements EventHandler<ActionEvent>{
     @Override
     public void start(Stage stage) throws Exception {
         display(stage);
-
     }
     public static void display(Stage stage){
         stage.setTitle("Title");
